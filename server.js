@@ -16,12 +16,12 @@ mongoose.connect(process.env.MONGO_URI);
 
 // --- Expense Schema ---
 const expenseSchema = new mongoose.Schema({
-  type: { type: String, enum: ["Expense", "Income"], required: true },
+  type: { type: String, enum: ["expense", "income"], required: true },
   amount: { type: Number, required: true },
   note: { type: String },
   category: { type: String },
   date: { type: Date, default: Date.now },
-});
+}, { timestamps: true });
 
 const Expense = mongoose.model("Expense", expenseSchema);
 
@@ -30,6 +30,10 @@ const Expense = mongoose.model("Expense", expenseSchema);
 // 1️⃣ Add Expense
 app.post("/expenses", async (req, res) => {
   try {
+    const payload = { 
+        ...req.body,
+        date: req.body.date ? new Date(req.body.date) : new Date()
+    };
     const expense = new Expense(req.body);
     await expense.save();
     res.status(201).json({ message: "Expense added", expense });
